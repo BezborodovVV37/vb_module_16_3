@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Path, HTTPException
 from typing import Annotated
 
 app = FastAPI()
 
-# Для запуска сервера, в терминале используйте команду :  uvicorn module_16_3:app --reload
+# Для запуска сервера, в терминале используйте команду: uvicorn module_16_3:app --reload
 
 users = {'1': 'Имя: Example, возраст: 18'}
 
@@ -19,7 +19,7 @@ async def post_users(
         age: Annotated[int, Path(description="Возраст пользователя")]) -> str:
     current_index = str(int(max(users, key=int)) + 1)
     users[current_index] = f"Имя: {username}, возраст: {age}"
-    return f'User {current_index} is registered'
+    return f'User  {current_index} is registered'
 
 
 @app.put('/user/{user_id}/{username}/{age}')
@@ -27,11 +27,19 @@ async def update_user(
         user_id: Annotated[str, Path(description="ID пользователя")],
         username: Annotated[str, Path(description="Имя пользователя")],
         age: Annotated[int, Path(description="Возраст пользователя")]) -> str:
+    if user_id not in users:
+        raise HTTPException(status_code=404, detail=f"User  {user_id} not found")
+
     users[user_id] = f"Имя: {username}, возраст: {age}"
-    return f"User {user_id} has been updated"
+    return f"User  {user_id} has been updated"
 
 
 @app.delete("/user/{user_id}")
 async def delete_user(user_id: Annotated[str, Path(description="ID пользователя")]) -> str:
+    if user_id not in users:
+        raise HTTPException(status_code=404, detail=f"User  {user_id} not found")
+
     users.pop(user_id)
-    return f"User {user_id} has been deleted"
+    return f"User  {user_id} has been deleted"
+
+
